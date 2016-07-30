@@ -1,0 +1,66 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="40dip"
+        android:gravity="center|left"
+        android:paddingLeft="10dip"
+        android:text="操作"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dip"
+        android:orientation="horizontal"
+        android:padding="10dip" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="确认量"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/dialog_et_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dip"
+            android:layout_weight="3"
+            android:paddingLeft="10dip" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dip" >
+
+        <TextView
+            android:id="@+id/dialog_tv_yes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:clickable="true"
+            android:paddingRight="20dip"
+            android:text="确认"
+            android:textColor="#FF7F24"
+            android:textSize="18sp" />
+
+        <TextView
+            android:clickable="true"
+            android:id="@+id/dialog_tv_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dip"
+            android:layout_toLeftOf="@id/dialog_tv_yes"
+            android:paddingRight="20dip"
+            android:text="取消"
+            android:textColor="#FF7F24"
+            android:textSize="18sp" />
+    </RelativeLayout>
+
+</LinearLayout>
