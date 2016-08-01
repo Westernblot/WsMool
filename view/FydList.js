@@ -18,8 +18,8 @@ import {
 import BackHeader from './BackHeader';
 import Line from './Line';
 
-var REQUEST_URL = 'http://xxx/jingpai_app_server/saleorderquery.php';
-var DO_URL = 'http://xxx/jingpai_app_server/comfirmsaleorder.php';
+var REQUEST_URL = 'http://crm.mall.jingpai.com/jingpai_app_server/saleorderquery.php';
+var DO_URL = 'http://crm.mall.jingpai.com/jingpai_app_server/comfirmsaleorder.php';
 
 var _ShipDepot;
 var _OrderNo ;
@@ -49,7 +49,9 @@ export default class FydList extends Component{
   
   //首次加载数据
   componentDidMount(){
-      
+    //延迟500毫秒加载，解决卡顿的问题
+     this.timer = setTimeout(
+      () => {
       var params = "ShipDepot="+_ShipDepot+"&OrderNo="+_OrderNo+"&PageNo=1";
       //ToastAndroid.show(params, ToastAndroid.SHORT);
       fetch(REQUEST_URL+"?"+params)
@@ -78,6 +80,9 @@ export default class FydList extends Component{
                  }               
              })
             .done();
+            },
+      500
+    );
    }
    
    
@@ -119,19 +124,23 @@ export default class FydList extends Component{
    //操作发运单
   async _doFy(orderno,amount,rowID){
 
-        var Operator = await AsyncStorage.getItem('userCode');
-         //弹出自定义对话框
-        NativeModules.DialogAndroid.showAlertDialog(amount,
-            (nums)=>{
-            //alert(nums);
-            var params = "OrderNo="+orderno+"&Operator="+Operator+"&ConfirmAmount="+nums;
+           
+          var Operator = await AsyncStorage.getItem('userCode'); 
 
+           var params = "OrderNo="+orderno+"&Operator="+Operator;
+
+           Alert.alert('操作发运单','确认操作发运单：【'+orderno+"】吗？",[
+
+            {text:'取消'},
+
+            {text:'确定',onPress:()=>
+{
              NativeModules.ProgressdialogAndroid.showProgressDialog("正在执行中...");
              fetch(DO_URL+"?"+params)
              .then((response) => response.json())
              .then((responseData) => {
               NativeModules.ProgressdialogAndroid.hideProgressDialog();
-               
+               var message = responseData.message;
                if(responseData.code=='1'){
                    ToastAndroid.show('操作成功!', ToastAndroid.SHORT);
                 //刷新数据
@@ -150,12 +159,54 @@ export default class FydList extends Component{
                      });
 
                 }else{
-                   ToastAndroid.show('操作失败!', ToastAndroid.SHORT);
+                   ToastAndroid.show('操作失败,'+message, ToastAndroid.SHORT);
                 }
              })
             .done();
 
-        });
+            }
+     }
+
+  ]);
+
+
+    //     var Operator = await AsyncStorage.getItem('userCode');
+    //      //弹出自定义对话框
+    //     NativeModules.DialogAndroid.showAlertDialog(amount,
+    //         (nums)=>{
+    //         //alert(nums);
+    //         var params = "OrderNo="+orderno+"&Operator="+Operator+"&ConfirmAmount="+nums;
+
+    //          NativeModules.ProgressdialogAndroid.showProgressDialog("正在执行中...");
+    //          fetch(DO_URL+"?"+params)
+    //          .then((response) => response.json())
+    //          .then((responseData) => {
+    //           NativeModules.ProgressdialogAndroid.hideProgressDialog();
+               
+    //            if(responseData.code=='1'){
+    //                ToastAndroid.show('操作成功!', ToastAndroid.SHORT);
+    //             //刷新数据
+    //             if(this.state.data.length==1){
+    //                    var data = [];                 
+    //             }else{
+    // var data =  this.state.data.slice(0,rowID).concat(this.state.data.slice(rowID+1,this.state.data.length));
+    //             }
+    //                 this.setState({
+    //                     data:data,
+    //                     dataSource: this.state.ds.cloneWithRows(data),
+    //                     loaded: true, 
+    //                     //PageNo: PageNo,     
+    //                     ds:this.state.ds,     
+    //                     loadMsg:'点击加载更多',           
+    //                  });
+
+    //             }else{
+    //                ToastAndroid.show('操作失败!', ToastAndroid.SHORT);
+    //             }
+    //          })
+    //         .done();
+
+    //     });
 
    }
   
@@ -164,7 +215,7 @@ export default class FydList extends Component{
   _renderRow(rowData,sectionID,rowID){
   	return(
   	  <View>
-  	       <TouchableOpacity onPress={this._doFy.bind(this,rowData.orderno,rowData.amount,rowID)} style={styles.listItem}>
+  	       <TouchableOpacity onPress={this._doFy.bind(this,rowData.assignformno,rowData.amount,rowID)} style={styles.listItem}>
                 <Text style={styles.itemText}>挑库单号：{rowData.assignformno}</Text>
                 <Text style={styles.itemText}>发货状态：{rowData.ifsent==0?'未发货':'已发货'}</Text>
                 <Text style={styles.itemText}>配送单号：{rowData.orderno}</Text>

@@ -12,13 +12,14 @@ import {
   ActivityIndicator,
   NativeModules,
   AsyncStorage,
+  Alert
 } from 'react-native';
 
 import BackHeader from './BackHeader';
 import Line from './Line';
 
-var REQUEST_URL = 'http://xxx/jingpai_app_server/moveorderquery.php';
-var DO_URL = 'http://xxx/jingpai_app_server/comfirmmoveorder.php';
+var REQUEST_URL = 'http://crm.mall.jingpai.com/jingpai_app_server/moveorderquery.php';
+var DO_URL = 'http://crm.mall.jingpai.com/jingpai_app_server/comfirmmoveorder.php';
 
 var _TargetDepot ;
 var _TransportOrderNo ;
@@ -136,19 +137,21 @@ export default class BydList extends Component{
   //操作搬运单
   async _doBy(TransportOrderNo,Lineid,quantity,rowID){
 
-        var Operator = await AsyncStorage.getItem('userCode');
-         //弹出自定义对话框
-        NativeModules.DialogAndroid.showAlertDialog(quantity,
-            (nums)=>{
-            //alert(nums);
- var params = "TransportOrderNo="+TransportOrderNo+"&Lineid="+Lineid+"&Operator="+Operator+"&ConfirmAmount="+nums;
+ var Operator = await AsyncStorage.getItem('userCode');
+ var params = "TransportOrderNo="+TransportOrderNo+"&Lineid="+Lineid+"&Operator="+Operator;
 
+           Alert.alert('操作搬运单','确认操作搬运单：【'+TransportOrderNo+"】吗？",[
+
+            {text:'取消'},
+
+            {text:'确定',onPress:()=>
+{
              NativeModules.ProgressdialogAndroid.showProgressDialog("正在执行中...");
              fetch(DO_URL+"?"+params)
              .then((response) => response.json())
              .then((responseData) => {
               NativeModules.ProgressdialogAndroid.hideProgressDialog();
-               
+               var message = responseData.message;
                if(responseData.code=='1'){
                    ToastAndroid.show('操作成功!', ToastAndroid.SHORT);
                 //刷新数据
@@ -167,12 +170,54 @@ export default class BydList extends Component{
                      });
 
                 }else{
-                   ToastAndroid.show('操作失败!', ToastAndroid.SHORT);
+                   ToastAndroid.show("操作失败,"+message, ToastAndroid.SHORT);
                 }
              })
-            .done();
+            .done();    
+     
+}
+              }
 
-        });
+            ]);
+
+
+ //        var Operator = await AsyncStorage.getItem('userCode');
+ //         //弹出自定义对话框
+ //        NativeModules.DialogAndroid.showAlertDialog(quantity,
+ //            (nums)=>{
+ //            //alert(nums);
+ // var params = "TransportOrderNo="+TransportOrderNo+"&Lineid="+Lineid+"&Operator="+Operator+"&ConfirmAmount="+nums;
+           
+ //             NativeModules.ProgressdialogAndroid.showProgressDialog("正在执行中...");
+ //             fetch(DO_URL+"?"+params)
+ //             .then((response) => response.json())
+ //             .then((responseData) => {
+ //              NativeModules.ProgressdialogAndroid.hideProgressDialog();
+ //               var message = responseData.message;
+ //               if(responseData.code=='1'){
+ //                   ToastAndroid.show('操作成功!', ToastAndroid.SHORT);
+ //                //刷新数据
+ //                if(this.state.data.length==1){
+ //                       var data = [];                 
+ //                }else{
+ //    var data =  this.state.data.slice(0,rowID).concat(this.state.data.slice(rowID+1,this.state.data.length));
+ //                }
+ //                    this.setState({
+ //                        data:data,
+ //                        dataSource: this.state.ds.cloneWithRows(data),
+ //                        loaded: true, 
+ //                        //PageNo: PageNo,     
+ //                        ds:this.state.ds,     
+ //                        loadMsg:'点击加载更多',           
+ //                     });
+
+ //                }else{
+ //                   ToastAndroid.show("操作失败,"+message, ToastAndroid.SHORT);
+ //                }
+ //             })
+ //            .done();
+
+ //        });
 
    }
 

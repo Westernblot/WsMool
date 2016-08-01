@@ -42,7 +42,7 @@ const PERSONAL_NORMAL = require('../images/tabs/personal_normal.png');
 const PERSONAL_FOCUS = require('../images/tabs/personal_focus.png');
 
 var _navigator ;
-var _username;
+var _fullName;
 var _userCode;
 var _OrderNo = '';
 var _ckList;
@@ -56,7 +56,7 @@ export default class MainScreen extends React.Component {
         _navigator = this.props.navigator;
         _ckList = this.props.ckList;
          this.state = {
-          username : null,
+          //username : null,
           subject : '发运单',
           selectedTab: HOME,
 
@@ -81,7 +81,7 @@ export default class MainScreen extends React.Component {
     
     //加载完成时赋值全局变量
     async componentDidMount() {
-          _username = await AsyncStorage.getItem('username');
+          _fullName = await AsyncStorage.getItem('fullName');
           _userCode = await AsyncStorage.getItem('userCode');
 
           //alert(_ckList[0]['invCode']);
@@ -274,6 +274,20 @@ export default class MainScreen extends React.Component {
     });
 
     }
+     
+
+     //-------------------------需求日期组件---------------------------
+
+                    // <View style={styles.flexContainer}>
+                    //     <Text style={styles.cell}> 需求日期 </Text>
+                    //     <TextInput style={styles.cellInput} placeholder="请输入需求日期"
+                    //       defaultValue = {this.state.RequiredDate}
+                    //       onChangeText={RequiredDate => this.setState({ RequiredDate })} />
+
+                    //     <TouchableOpacity onPress={()=>this._onSelectDate()} style={styles.date} >
+                    //     <Text style={styles.dateText}>选择</Text>
+                    //     </TouchableOpacity>                     
+                    // </View>
 
 
     //----------------------------------华丽的分割线-----------------------------------------------
@@ -289,7 +303,7 @@ export default class MainScreen extends React.Component {
                 onPress={() => this.setState({ 
                 	subject : tag,
                 	selectedTab: tag , 
-                  username : _username,      
+                  fullName : _fullName,      
                   userCode : _userCode,            
                 })}>
                 {childView}
@@ -352,16 +366,11 @@ export default class MainScreen extends React.Component {
                         <Text style={styles.dateText}>扫码</Text>
           </TouchableOpacity>       
                     </View>
-                    <View style={styles.flexContainer}>
-                        <Text style={styles.cell}> 需求日期 </Text>
-                        <TextInput style={styles.cellInput} placeholder="请输入需求日期"
-                          defaultValue = {this.state.RequiredDate}
-                          onChangeText={RequiredDate => this.setState({ RequiredDate })} />
 
-                        <TouchableOpacity onPress={()=>this._onSelectDate()} style={styles.date} >
-                        <Text style={styles.dateText}>选择</Text>
-                        </TouchableOpacity>                     
-                    </View>
+                  
+                   
+
+
                     <View style={styles.flexContainer}>
                         <Text style={styles.cell}> 物料编码 </Text>
                         <TextInput style={styles.cellInput} placeholder="请输入物料编码"
@@ -432,7 +441,7 @@ export default class MainScreen extends React.Component {
                      </View>
 
                      <View style={styles.personInfo_right}>
-                       <Text style={styles.personInfo_text1}>{this.state.username}</Text>
+                       <Text style={styles.personInfo_text1}>{this.state.fullName}</Text>
                        <Text style={styles.personInfo_text2}>{this.state.userCode}</Text>
                      </View>
 
@@ -610,7 +619,8 @@ const styles = StyleSheet.create({
   },
   dateText:{
     fontSize:18,
-  }
+  },
+ 
 
 
 }); 

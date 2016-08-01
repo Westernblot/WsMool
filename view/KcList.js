@@ -16,7 +16,7 @@ import {
 import BackHeader from './BackHeader';
 import Line from './Line';
 
-var REQUEST_URL = 'http://xxx/jingpai_app_server/onhandquery.php';
+var REQUEST_URL = 'http://crm.mall.jingpai.com/jingpai_app_server/onhandquery.php';
 
 var _DepotCode ;
 var _StockOrg ;

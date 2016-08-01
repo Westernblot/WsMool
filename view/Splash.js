@@ -33,10 +33,23 @@ export default class Splash extends React.Component {
     //处理物理后退键
     componentWillMount() {
     	 BackAndroid.addEventListener('hardwareBackPress', function() {  
+
+           //普通页面返回
            if (_navigator && _navigator.getCurrentRoutes().length > 1) {
-            _navigator.pop();
-            return true;
-            }
+               _navigator.pop();
+               return true;
+           }
+
+            //root页面返回,双击2次退出
+           if (this.lastBackPressed && this.lastBackPressed + 2000 >= Date.now()) {
+               //最近2秒内按过back键，可以退出应用。
+                return false;
+           }else{
+               this.lastBackPressed = Date.now();
+               ToastAndroid.show('再按一次退出应用',ToastAndroid.SHORT);
+               return true;
+           }
+         
            return false;
         });
     }

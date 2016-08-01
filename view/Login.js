@@ -8,14 +8,16 @@ import {
 	ToastAndroid,
   BackAndroid,
   AsyncStorage,
-  NativeModules
+  NativeModules,
+  Switch
 } from 'react-native';
 
 import MainScreen from './MainScreen';
 
 var _navigator ;
-var REQUEST_URL = 'http://xxx/LoginHandler.ashx';
-var CK_URL = 'http://xxx/jingpai_app_server/uservalidate.php?EipNo=20791';
+var REQUEST_URL = 'http://sso.jingpai.com/LoginHandler.ashx';
+var CK_URL = 'http://crm.mall.jingpai.com/jingpai_app_server/uservalidate.php';
+
 
 export default class Login extends React.Component {
 	
@@ -25,14 +27,33 @@ export default class Login extends React.Component {
 		this.state = {
 			username: '',
 			password: '',
+      isOn:false,
 		}
 	}
+
+  //页面加载完成操作
+  async componentDidMount() {
+     var strFlag = await AsyncStorage.getItem('isOn');
+     var username = await AsyncStorage.getItem('username');
+     var password = await AsyncStorage.getItem('password');
+      
+      //ToastAndroid.show(strFlag, ToastAndroid.SHORT);
+        if(strFlag=='TRUE'){
+            this.setState({
+              username: username,
+              password: password,
+              isOn:true,
+            });
+        }
+    
+    }
 
     //用户登录
     async _login(){
      NativeModules.ProgressdialogAndroid.showProgressDialog("正在登录...");
      var username = this.state.username;
      var password = this.state.password;
+     var isOn = this.state.isOn;
      var params = "username="+username+"&password="+password;
      
     // _navigator.replace({
@@ -46,15 +67,24 @@ export default class Login extends React.Component {
              .then((responseData) => {               
                if(responseData.Flag==1){
                  //ToastAndroid.show('验证成功!', ToastAndroid.SHORT);
-                   AsyncStorage.setItem('FLAG','TRUE');
-                   AsyncStorage.setItem('username',responseData.FullName);
+                   
+                   //保存用户信息状态
+                   if(isOn){
+                        AsyncStorage.setItem('isOn','TRUE');
+                   }else{
+                        AsyncStorage.setItem('isOn','FALSE');
+                   }
+                   AsyncStorage.setItem('username',username);
+                   AsyncStorage.setItem('password',password);
+                   AsyncStorage.setItem('fullName',responseData.FullName);
                    AsyncStorage.setItem('userCode',responseData.UserNumber);
-
+                  
                    //------验证仓库权限-------
-                    fetch(CK_URL)
+                    fetch(CK_URL+"?EipNo="+username)
                         .then((response) => response.json())
                         .then((responseData) => {
                            NativeModules.ProgressdialogAndroid.hideProgressDialog();
+                           var resultMessage = responseData.message;
                            if(responseData.code=='Y'){
 
                              //保存全局仓库
@@ -68,14 +98,14 @@ export default class Login extends React.Component {
                                   }
                                });
                             }else{
-                               ToastAndroid.show('验证失败!', ToastAndroid.SHORT);
+                               ToastAndroid.show(resultMessage, ToastAndroid.SHORT);
                             }
                         }).done();
                   //------验证仓库权限-------
                 
                 }else{
                    NativeModules.ProgressdialogAndroid.hideProgressDialog();
-                   ToastAndroid.show('验证失败!', ToastAndroid.SHORT);
+                   ToastAndroid.show('用户名或密码错误!', ToastAndroid.SHORT);
                 }
              })
             .done();
@@ -127,6 +157,14 @@ export default class Login extends React.Component {
             <TextInput secureTextEntry={true} style={styles.cellInput} placeholder="请输入EIP密码"
             defaultValue = {this.state.password}
             onChangeText={password => this.setState({ password })} />
+       </View>
+
+       <View style={styles.rember}>
+       <Text>记住密码</Text>
+       <Switch
+          disabled={false}
+          onValueChange={(value) =>this.setState({isOn: value})}
+          value={this.state.isOn}/>
        </View>
 
        <TouchableOpacity onPress={this._login.bind(this)} style={styles.button}>
@@ -192,7 +230,13 @@ var styles = StyleSheet.create({
   	alignItems:'center',
   	height:40,
   	margin:10,
+    marginTop:20,
   	backgroundColor:'#FF7F24'
+  },
+  rember:{
+    padding:10,
+    marginTop:10,
+    flexDirection:'row',
+    justifyContent:'flex-end',
   }
-
 });
